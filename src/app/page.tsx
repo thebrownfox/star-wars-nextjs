@@ -3,16 +3,20 @@ import { fetchCharacters } from "@/lib/api";
 import { CharacterList } from "@/components/character-list";
 import { SearchControls } from "@/components/search-controls";
 
-// This is now a Server Component that performs the initial data fetch
+// NOTE: This has been refactored into Server Component that performs the initial data fetch
 export default async function StarWarsPage({
 	searchParams,
 }: {
-	searchParams: { search?: string; page?: string };
+	searchParams: Promise<{ search?: string; page?: string }>;
 }) {
-	const search = searchParams.search || "";
-	const page = Number.parseInt(searchParams.page || "1", 10);
+	const _searchParams = await searchParams;
 
-	// Server-side initial data fetch
+	const search = _searchParams.search || "";
+	const page = Number.parseInt(_searchParams.page || "1", 10);
+
+	// NOTE: Server-side initial data fetch - we have to fetch data here and init it via component
+	// because we are using a client component (CharacterList) that needs the data
+	// to be passed as props (store is not available on the server).
 	const initialData = await fetchCharacters(search, page);
 
 	return (
